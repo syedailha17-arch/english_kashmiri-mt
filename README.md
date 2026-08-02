@@ -294,6 +294,8 @@ Team members:
 
 ## 📞 Contact
 
-- **GitHub:** [github.com/BabarZargar](https://github.com/BabarZargar)
-
----
+*Team GitHub profiles:*
+- Babar: [github.com/BabarZargar](https://github.com/BabarZargar)
+- Muhaimin: [github.com/Muha1m1n](https://github.com/Muha1m1n)
+- Ilha: [github.com/syedailha17-arch](https://github.com/syedailha17-arch)
+- Aatif:[github.com/Aatif-wani](https://github.com/Aatif-wani)
