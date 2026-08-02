@@ -294,7 +294,6 @@ Team members:
 
 ## 📞 Contact
 
-- **GitHub:** [github.com/BabarZargar/english_kashmiri-mt](https://github.com/BabarZargar/english_kashmiri-mt)
-- **Kaggle:** [kaggle.com/babarzargar](https://kaggle.com/babarzargar)
+- **GitHub:** [github.com/BabarZargar](https://github.com/BabarZargar)
 
 ---
