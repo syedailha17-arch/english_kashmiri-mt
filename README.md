@@ -29,8 +29,8 @@ A machine translation system for English-to-Kashmiri translation, built for the 
 
 | Name | Role | Background |
 |------|------|-----------|
-| **Babar** | ML Architect | Model training & fine-tuning (Andrew Ng Course 1 complete) |
-| **Muhaimin** | Data Engineer | Data cleaning & preprocessing (Courses 1 & 2 complete) |
+| **Babar** | ML Architect | Model training & fine-tuning |
+| **Muhaimin** | Data Engineer | Data cleaning & preprocessing |
 | **Ilha** | DevOps | GitHub repo, evaluation scripts, experiment tracking |
 | **Atif** | Kaggle Lead | Kaggle registration, submission management, CSV validation |
 
@@ -276,51 +276,6 @@ pip install -r requirements.txt
 
 ---
 
-## 🎓 Learning Resources
-
-### Background Reading
-- [Jay Alammar: The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/) — Encoder-decoder architecture
-- [HuggingFace Course Chapter 1](https://huggingface.co/course/chapter1) — Transformers intro
-- [Neural Machine Translation by Attention](https://arxiv.org/abs/1409.0473) — Seq2seq + attention (Bahdanau et al.)
-
-### Fine-tuning References
-- [HuggingFace Fine-tuning Guide](https://huggingface.co/docs/transformers/training)
-- [IndicTrans2 Paper](https://arxiv.org/abs/2305.16311) — AI4Bharat Indic translation model
-- [BLEU Score Explained](https://en.wikipedia.org/wiki/BLEU) — Evaluation metric background
-
-### Kashmiri-Specific
-- [BPCC Dataset Paper](https://github.com/ai4bharat/BPCC) — Dataset documentation
-- [Kashmiri on Wikipedia](https://en.wikipedia.org/wiki/Kashmiri_language) — Language facts
-
----
-
-## 🐛 Troubleshooting
-
-### Issue: `ModuleNotFoundError: transformers.onnx`
-**Solution:** This happens with IndicTrans2 on local machines. Use Kaggle Notebooks instead (dependencies pre-configured).
-
-### Issue: NLLB outputs gibberish
-**Solution:** Expected—NLLB doesn't support Kashmiri. Use IndicTrans2.
-
-### Issue: `HuggingFace authentication failed`
-**Solution:** Run `hf auth login` and paste your access token from [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
-
-### Issue: Out of memory (OOM) during training
-**Solution:** Reduce batch size from 32 to 16. Or use Kaggle P100 GPU (more VRAM).
-
----
-
-## 📝 Notes for In-Person Round
-
-If your team makes top 15–20, you'll present at NIT Srinagar on Aug 21. Prepare:
-
-1. **Approach:** Why IndicTrans2? How did you fine-tune?
-2. **Results:** Final BLEU/chrF++ scores, comparison with baseline
-3. **Challenges:** What went wrong? How did you debug?
-4. **Future work:** How would you improve to 50+ BLEU?
-
----
-
 ## 📄 License
 
 MIT License — See `LICENSE` file
@@ -343,47 +298,3 @@ Team members:
 - **Kaggle:** [kaggle.com/babarzargar](https://kaggle.com/babarzargar)
 
 ---
-
-## 📌 Key Dates
-
-| Date | Task | Owner |
-|------|------|-------|
-| Aug 2 | Baseline complete | Babar |
-| Aug 8 | IndicTrans2 fine-tuning starts | Babar |
-| Aug 14 | Best model selected | Babar |
-| Aug 17 | 3 final submissions + code pushed | Atif & Babar |
-| Aug 21 | In-person round (if qualified) | Team |
-
----
-
-**Last updated:** Aug 2, 2026  
-**Status:** 🟡 Week 1 complete, Week 2 starting
-
----
-
-## Quick Reference
-
-### Load Data
-```python
-from datasets import load_dataset
-dataset = load_dataset("ai4bharat/BPCC", "bpcc-seed-latest", split="kas_Arab")
-```
-
-### Score Translations
-```python
-from sacrebleu import BLEU, CHRF
-bleu = BLEU().corpus_score(predictions, [references])
-chrf = CHRF().corpus_score(predictions, [references])
-geo_mean = (bleu.score * chrf.score) ** 0.5
-```
-
-### Fine-tune Model
-```python
-from transformers import Trainer, TrainingArguments
-trainer = Trainer(model=model, args=training_args, train_dataset=train_data)
-trainer.train()
-```
-
----
-
-**Good luck! 🚀 Let's beat that 40-point geometric mean!**
