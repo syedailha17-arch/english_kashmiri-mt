@@ -75,7 +75,7 @@ english_kashmiri-mt/
 
 ```bash
 # Clone repo
-git clone https://github.com/BabarZargar/english_kashmiri-mt.git
+git clone https://github.com/syedailha17-arch/english_kashmiri-mt.git
 cd english_kashmiri-mt
 
 # Create virtual environment
@@ -186,35 +186,6 @@ model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 - **Formula:** `sqrt(bleu_score * chrf_score)`
 
 **Why both metrics?** Kashmiri inflects heavily. A translation might have perfect word order (high BLEU) but wrong suffixes (low chrF++), or vice versa.
-
----
-
-## 🛠️ Training Pipeline
-
-### Week 1: Foundation (Aug 1–7) ✅
-- [x] Learn NMT, BLEU/chrF++, seq2seq architecture
-- [x] Set up local environment (Python, PyTorch, transformers)
-- [x] Load BPCC dataset from HuggingFace
-- [x] Run NLLB baseline (identify it's not suitable)
-
-### Week 2: Fine-tuning (Aug 8–14) ⏳
-- [ ] Get cleaned train/val/test data from Muhaimin
-- [ ] Fine-tune IndicTrans2 on Kaggle Notebooks (GPU)
-  - [ ] 2–3 epochs on training data
-  - [ ] Validation set evaluation after each epoch
-  - [ ] Save best checkpoint by geo_mean score
-- [ ] Hyperparameter experiments
-  - [ ] Learning rate: [1e-5, 5e-5, 1e-4]
-  - [ ] Batch size: [16, 32, 64]
-  - [ ] Epochs: [1, 2, 3]
-- [ ] Log all results in `results/scores.json`
-
-### Week 3: Submission (Aug 15–17) 📤
-- [ ] Generate predictions on full test set
-- [ ] Format predictions as CSV (English, Kashmiri)
-- [ ] Make 3 Kaggle submissions (iterate if needed)
-- [ ] Push final code to GitHub (public)
-- [ ] Submit in-person round registration (if top 20)
 
 ---
 
