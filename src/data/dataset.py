@@ -6,7 +6,7 @@ from transformers import AutoTokenizer
 class KashmiriTranslationDataset(Dataset):
     def __init__(self, csv_file, tokenizer_name="ai4bharat/indictrans2-en-indic-1B", max_length=128):
         """
-        PyTorch Dataset for Babar's ML Training Loop.
+        PyTorch Dataset for ML Training Loop.
         Reads the clean CSVs and tokenizes them on the fly.
         """
         print(f"Loading data from {csv_file}...")
@@ -43,14 +43,14 @@ class KashmiriTranslationDataset(Dataset):
             return_tensors="pt"
         )
         
-        # Return the tensors Babar needs for the PyTorch training loop
+        # Return the tensors needed for the PyTorch training loop
         return {
             'input_ids': source_encodings['input_ids'].flatten(),
             'attention_mask': source_encodings['attention_mask'].flatten(),
             'labels': target_encodings['input_ids'].flatten()
         }
 
-# --- Quick Test to ensure it works for Babar ---
+# --- Quick Test to ensure it works ---
 if __name__ == "__main__":
     print("Testing the PyTorch Dataset class...")
     # Create the dataset using the validation split
@@ -64,4 +64,4 @@ if __name__ == "__main__":
     print("\n--- Successful Batch Generation ---")
     print(f"Input IDs shape (English): {batch['input_ids'].shape}")
     print(f"Labels shape (Kashmiri):   {batch['labels'].shape}")
-    print("Hand-off to Babar is ready!")
+  
