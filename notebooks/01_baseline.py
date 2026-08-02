@@ -1,3 +1,8 @@
+# BASELINE ATTEMPT 1: NLLB-200 (Aug 2)
+# Result: BLEU 4.74, chrF++ 34.48, Geo 12.78
+# Issue: NLLB doesn't support Kashmiri natively. Output is nonsense.
+# Decision: Abandon NLLB. Move to IndicTrans2 which IS trained on Indian languages.
+
 # Load BPCC dataset
 from datasets import load_dataset
 from transformers import AutoTokenizer, M2M100ForConditionalGeneration
