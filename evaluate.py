@@ -1,42 +1,45 @@
-"""
-evaluate.py: scores translation preductions against reference translations using BLEU and chrF++ (via Sacrebleu)
-Usage: -python evaluate.py
-       -predictions preds.txt
-       -references refs.txt
-"""
 import argparse
+import pandas as pd
+import pandas.api.types
 import sacrebleu
+from KashmiriNormalizer import KashmiriNormalizer
 
-def load_lines(path):
-    with open(path,"r",encoding="utf-8") as f:
-        return[line.strip() for line in f if line.strip()]
-def evaluate(predictions_path, references_path):
-    predictions= load_lines(predictions_path)
-    references=load_lines(references_path)
-    if len(predictions)!=len(references):
-        raise ValueError(
-            f"Mismatch:{len(predictions)} predictions vs"
-            f"{len(references)} references. They must be the same length"
-            f"and line aligned(line 1 of predictions matches line 1 of references,etc.)"
-        )
+_normalizer = KashmiriNormalizer()
 
-#Sacrebleu expectes references as a list of reference-lists
-    refs_formatted=[references]
-    bleu=sacrebleu.corpus_bleu(predictions, refs_formatted)
-    chrf=sacrebleu.corpus_chrf(predictions, refs_formatted, word_order=2)
+def normalize_text(value):
+    text = "" if pd.isna(value) else str(value)
+    return _normalizer.normalize(text)
 
-    print(f"Predictions:{predictions_path}")
-    print(f"References:{references_path}")
-    print(f"Sentences scored:{len(predictions)}")
-    print("-"*40)
-    print(f"BLEU score: {bleu.score:.2f}")
-    print(f"chrF++ score: {chrf.score:.2f}")
-    return bleu.score, chrf.score
+def evaluate(predictions_path, references_path, id_column="ID"):
+    solution = pd.read_csv(references_path)
+    submission = pd.read_csv(predictions_path)
 
-if __name__=="__main__":
-    parser= argparse.ArgumentParser(description="Evaluate translations with BLEU + chrF++")
-    parser.add_argument("--predictions", required=True, help="Path to model output text file")
-    parser.add_argument("--references", required=True, help="Path to reference (gold) translation text file")
-    args= parser.parse_args()
-    
+    del solution[id_column]
+    del submission[id_column]
+
+    if len(submission) != len(solution):
+        raise ValueError(f"Mismatch: {len(submission)} predictions vs {len(solution)} references.")
+
+    references = [normalize_text(v) for v in solution["kashmiri_text"]]
+    hypotheses = [normalize_text(v) for v in submission["kashmiri_text"]]
+
+    bleu = sacrebleu.corpus_bleu(hypotheses, [references]).score
+    chrf = sacrebleu.corpus_chrf(hypotheses, [references], word_order=2).score
+    geo_mean = (bleu * chrf) ** 0.5 if bleu > 0 and chrf > 0 else 0.0
+
+    print(f"Predictions: {predictions_path}")
+    print(f"References: {references_path}")
+    print(f"Sentences scored: {len(submission)}")
+    print("-" * 40)
+    print(f"BLEU score: {bleu:.2f}")
+    print(f"chrF++ score: {chrf:.2f}")
+    print(f"Geometric Mean: {geo_mean:.2f}")
+
+    return bleu, chrf, geo_mean
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Evaluate translations with official KATHE scoring")
+    parser.add_argument("--predictions", required=True, help="Path to submission CSV (ID, kashmiri_text)")
+    parser.add_argument("--references", required=True, help="Path to reference CSV (ID, kashmiri_text)")
+    args = parser.parse_args()
     evaluate(args.predictions, args.references)
