@@ -2,7 +2,6 @@ import pandas as pd
 
 df = pd.read_csv("../data/processed/test.csv")
 df = df[~df["tgt"].astype(str).str.contains("<<<<<<<|=======|>>>>>>>", na=False)]
-df = df.head(9488)
 
 reference_df = pd.DataFrame({
     "ID": range(1, len(df) + 1),
