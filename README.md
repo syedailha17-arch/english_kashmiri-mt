@@ -40,26 +40,26 @@ A machine translation system for English-to-Kashmiri translation, built for the 
 
 ```
 english_kashmiri-mt/
-├── kathe_env/                  # Python virtual environment
-├── notebooks/
-│   ├── 01_baseline.py          # NLLB baseline (deprecated)
-│   ├── 02_finetune.py          # IndicTrans2 fine-tuning (Kaggle)
-│   ├── 03_experiments.py       # Hyperparameter experiments
-│   └── 04_inference.py         # Final predictions on test set
-├── data/
-│   ├── raw/                    # Original BPCC dataset
-│   ├── processed/              # Train/val/test splits (from Muhaimin)
-│   └── predictions/            # Model outputs
-├── models/
-│   ├── baseline/               # NLLB checkpoints
-│   └── finetuned/              # IndicTrans2 fine-tuned checkpoints
-├── results/
-│   ├── scores.json             # BLEU/chrF++ scores per experiment
-│   └── examples.txt            # Sample predictions
-├── .gitignore
+├── README.md                    # This file
 ├── LICENSE
-├── README.md                   # This file
-└── requirements.txt            # Python dependencies
+├── requirements.txt              # Python dependencies
+├── .gitignore
+├── data/
+│   └── processed/                # Cleaned train/val/test splits (from Muhaimin)
+│       ├── kashmiri_cleaned.csv
+│       ├── train.csv
+│       ├── val.csv
+│       └── test.csv
+├── notebooks/
+│   └── baseline.py               # NLLB baseline model
+├── src/
+│   └── data/
+│       └── dataset.py            # Data loading utilities
+├── refs_and_preds/
+│   ├── make_refs.py              # Builds reference.csv from test.csv
+│   └── reference.csv             # Reference translations for evaluation
+└── evaluate.py                   # BLEU + chrF++ scoring script
+
 ```
 
 ---
