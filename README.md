@@ -10,7 +10,7 @@ A machine translation system for English-to-Kashmiri translation, built for the 
 **Task:** English-to-Kashmiri Neural Machine Translation  
 **Datasets:**
 - **BPCC (Bilingual Parallel Corpus Collection)** — 98,929 English-Kashmiri pairs
-- **Kashmiri-English Parallel Corpus** by Syed Qamar — 30,000 sentence pairs (accessed with permission)
+- **Kashmiri-English Parallel Corpus** by Qumar, S.M.U., Azim, M. & Quadri, S.M.K. — 30,000 sentence pairs (used with permission)
 **Evaluation:** Geometric mean of BLEU and chrF++  
 **Prize:** 30,000+ INR for top teams  
 **In-person round:** Top 15–20 teams invited to NIT Srinagar (Aug 21)
@@ -18,15 +18,15 @@ A machine translation system for English-to-Kashmiri translation, built for the 
 ---
 
 
-### Dataset Acknowledgement
+ ### Dataset Acknowledgement
 
-In addition to the BPCC dataset, this project uses the **Kashmiri-English Parallel Corpus** by **Dr. Syed Qamar** as an additional training resource.
+In addition to the BPCC dataset, this project uses the **Kashmiri-English Parallel Corpus** developed by Qumar, S.M.U., Azim, M. & Quadri, S.M.K.
 
-We gratefully acknowledge the contribution of the corpus to this project. The dataset was accessed with permission from the author and was used solely for the KATHE 2026 competition.
+The corpus was accessed with permission from the authors and used as an additional training resource for our KATHE 2026 English-to-Kashmiri machine translation system.
 
-**Dataset:** [SMUQamar/Kashmiri-English-Parallel-Corpus](https://huggingface.co/datasets/SMUQamar/Kashmiri-English-Parallel-Corpus)
+**Dataset:** [Kashmiri-English Parallel Corpus](https://huggingface.co/datasets/SMUQamar/Kashmiri-English-Parallel-Corpus)
 
-Please refer to the original corpus publication for citation information.
+We gratefully acknowledge the authors for making this resource available. The dataset is not redistributed as part of this repository.
 
 
 ## 📊 Competition Timeline
