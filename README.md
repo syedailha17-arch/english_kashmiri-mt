@@ -301,7 +301,6 @@ MIT License — See `LICENSE` file
 Team members:
 - Push to `main` branch (not production-critical)
 - Keep `notebooks/` clean (only working versions)
-- Log all experiments in `results/scores.json`
 - Update this README if you change structure/process
 
 ---
