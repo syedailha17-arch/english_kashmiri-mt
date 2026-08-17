@@ -8,12 +8,26 @@ A machine translation system for English-to-Kashmiri translation, built for the 
 
 **Competition:** KATHE 2026 (Kashmiri Language Technology Challenge)  
 **Task:** English-to-Kashmiri Neural Machine Translation  
-**Dataset:** BPCC (Bilingual Parallel Corpus Collection) - 98,929 English-Kashmiri pairs  
+**Datasets:**
+- **BPCC (Bilingual Parallel Corpus Collection)** — 98,929 English-Kashmiri pairs
+- **Kashmiri-English Parallel Corpus** by Qamar, S.M.U., Azim, M. & Quadri, S.M.K. — 30,000 sentence pairs (used with permission)
 **Evaluation:** Geometric mean of BLEU and chrF++  
 **Prize:** 30,000+ INR for top teams  
 **In-person round:** Top 15–20 teams invited to NIT Srinagar (Aug 21)
 
 ---
+
+
+ ### Dataset Acknowledgement
+
+In addition to the BPCC dataset, this project uses the **Kashmiri-English Parallel Corpus** developed by Qamar, S.M.U., Azim, M. & Quadri, S.M.K.
+
+The corpus was accessed with permission from the authors and used as an additional training resource for our KATHE 2026 English-to-Kashmiri machine translation system.
+
+**Dataset:** [Kashmiri-English Parallel Corpus](https://huggingface.co/datasets/SMUQamar/Kashmiri-English-Parallel-Corpus)
+
+We gratefully acknowledge the authors for making this resource available. The dataset is not redistributed as part of this repository.
+
 
 ## 📊 Competition Timeline
 
@@ -40,26 +54,26 @@ A machine translation system for English-to-Kashmiri translation, built for the 
 
 ```
 english_kashmiri-mt/
-├── kathe_env/                  # Python virtual environment
-├── notebooks/
-│   ├── 01_baseline.py          # NLLB baseline (deprecated)
-│   ├── 02_finetune.py          # IndicTrans2 fine-tuning (Kaggle)
-│   ├── 03_experiments.py       # Hyperparameter experiments
-│   └── 04_inference.py         # Final predictions on test set
-├── data/
-│   ├── raw/                    # Original BPCC dataset
-│   ├── processed/              # Train/val/test splits (from Muhaimin)
-│   └── predictions/            # Model outputs
-├── models/
-│   ├── baseline/               # NLLB checkpoints
-│   └── finetuned/              # IndicTrans2 fine-tuned checkpoints
-├── results/
-│   ├── scores.json             # BLEU/chrF++ scores per experiment
-│   └── examples.txt            # Sample predictions
-├── .gitignore
+├── README.md                    # This file
 ├── LICENSE
-├── README.md                   # This file
-└── requirements.txt            # Python dependencies
+├── requirements.txt              # Python dependencies
+├── .gitignore
+├── data/
+│   └── processed/                # Cleaned train/val/test splits (from Muhaimin)
+│       ├── kashmiri_cleaned.csv
+│       ├── train.csv
+│       ├── val.csv
+│       └── test.csv
+├── notebooks/
+│   └── baseline.py               # NLLB baseline model
+├── src/
+│   └── data/
+│       └── dataset.py            # Data loading utilities
+├── refs_and_preds/
+│   ├── make_refs.py              # Builds reference.csv from test.csv
+│   └── reference.csv             # Reference translations for evaluation
+└── evaluate.py                   # BLEU + chrF++ scoring script
+
 ```
 
 ---
@@ -287,7 +301,6 @@ MIT License — See `LICENSE` file
 Team members:
 - Push to `main` branch (not production-critical)
 - Keep `notebooks/` clean (only working versions)
-- Log all experiments in `results/scores.json`
 - Update this README if you change structure/process
 
 ---
