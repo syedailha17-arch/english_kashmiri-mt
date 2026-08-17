@@ -1,314 +1,103 @@
-# English-Kashmiri Machine Translation (KATHE 2026)
+# English--Kashmiri Machine Translation (KATHE 2026)
 
-A machine translation system for English-to-Kashmiri translation, built for the **KATHE 2026 competition** at NIT Srinagar.
+An English-to-Kashmiri neural machine translation system developed for the **KATHE 2026: Kashmiri Language Technology Challenge** at NIT Srinagar.
 
----
+## Results
 
-## 🎯 Project Overview
+| Experiment | Fine-tuning approach | Competition leaderboard score |
+|---|---|---:|
+| IndicTrans2 1B | LoRA (parameter-efficient) fine-tuning | 7.90 |
+| IndicTrans2 200M | Full fine-tuning | **15.55** |
 
-**Competition:** KATHE 2026 (Kashmiri Language Technology Challenge)  
-**Task:** English-to-Kashmiri Neural Machine Translation  
-**Datasets:**
-- **BPCC (Bilingual Parallel Corpus Collection)** — 98,929 English-Kashmiri pairs
-- **Kashmiri-English Parallel Corpus** by Qamar, S.M.U., Azim, M. & Quadri, S.M.K. — 30,000 sentence pairs (used with permission)
-**Evaluation:** Geometric mean of BLEU and chrF++  
-**Prize:** 30,000+ INR for top teams  
-**In-person round:** Top 15–20 teams invited to NIT Srinagar (Aug 21)
+The final submission uses the **IndicTrans2 200M** model. It achieved the best score of **15.55**.
 
----
+## Team
 
+| Name | Role |
+|---|---|
+| Babar | Model training and fine-tuning |
+| Muhaimin | Data cleaning and preprocessing |
+| Ilha | Repository and experiment tracking |
+| Atif | Kaggle submissions and CSV validation |
 
- ### Dataset Acknowledgement
+## Methodology
 
-In addition to the BPCC dataset, this project uses the **Kashmiri-English Parallel Corpus** developed by Qamar, S.M.U., Azim, M. & Quadri, S.M.K.
+### Model selection
 
-The corpus was accessed with permission from the authors and used as an additional training resource for our KATHE 2026 English-to-Kashmiri machine translation system.
+We first experimented with an IndicTrans2 1B model. Because of the memory requirements of this larger model, it was trained with **LoRA**, a parameter-efficient fine-tuning method that updates only a small set of trainable adapter parameters instead of the full model. This experiment obtained a leaderboard score of **7.90**.
 
-**Dataset:** [Kashmiri-English Parallel Corpus](https://huggingface.co/datasets/SMUQamar/Kashmiri-English-Parallel-Corpus)
+We then switched to [`ai4bharat/indictrans2-en-indic-dist-200M`](https://huggingface.co/ai4bharat/indictrans2-en-indic-dist-200M). Its smaller size made it feasible to fine-tune the model's full set of parameters on the available Kaggle GPU. Full fine-tuning produced a substantially stronger result, with a leaderboard score of **15.55**, so this became the final model.
 
-We gratefully acknowledge the authors for making this resource available. The dataset is not redistributed as part of this repository.
+### Frameworks and libraries
 
+The project uses **PyTorch**, **Hugging Face Transformers**, and **IndicTransToolkit**. Pandas and NumPy are used for data handling, and tqdm is used to display inference progress. Training and inference were performed in a GPU-enabled Kaggle Notebook.
 
-## 📊 Competition Timeline
+### Data
 
-| Date | Milestone |
-|------|-----------|
-| Aug 1–17 | Main competition (16 days) |
-| Aug 17, 11:59 PM | Final submission deadline |
-| Aug 21 | In-person round at NIT Srinagar |
+The training corpus combines:
 
----
+- the BPCC English--Kashmiri parallel corpus;
+- Syed Matla-ul-Qamar's Hugging Face English--Kashmiri dataset, containing approximately 30,000 sentence pairs; and
+- the competition-provided training data where applicable.
 
-## 👥 Team
+Rows with missing or empty English/Kashmiri text were removed. To control sequence length, BPCC pairs were restricted to at most 150 whitespace-separated tokens on each side, while the additional Hugging Face pairs were restricted to at most 50. After cleaning, the final training set contained **105,665** pairs: **75,913** BPCC pairs and **29,752** pairs from the additional Hugging Face dataset.
 
-| Name | Role | Background |
-|------|------|-----------|
-| **Babar** | ML Architect | Model training & fine-tuning |
-| **Muhaimin** | Data Engineer | Data cleaning & preprocessing |
-| **Ilha** | DevOps | GitHub repo, evaluation scripts, experiment tracking |
-| **Atif** | Kaggle Lead | Kaggle registration, submission management, CSV validation |
+### Preprocessing
 
----
+The source language was processed as `eng_Latn` and the target language as `kas_Arab` using IndicTransToolkit. Source and target text were tokenized with truncation at a maximum length of 128. Dynamic padding was applied by the sequence-to-sequence data collator, with padding to a multiple of 8 for efficient GPU computation.
 
-## 📁 Repository Structure
+### Full fine-tuning configuration
 
-```
-english_kashmiri-mt/
-├── README.md                    # This file
-├── LICENSE
-├── requirements.txt              # Python dependencies
-├── .gitignore
-├── data/
-│   └── processed/                # Cleaned train/val/test splits (from Muhaimin)
-│       ├── kashmiri_cleaned.csv
-│       ├── train.csv
-│       ├── val.csv
-│       └── test.csv
-├── notebooks/
-│   └── baseline.py               # NLLB baseline model
-├── src/
-│   └── data/
-│       └── dataset.py            # Data loading utilities
-├── refs_and_preds/
-│   ├── make_refs.py              # Builds reference.csv from test.csv
-│   └── reference.csv             # Reference translations for evaluation
-└── evaluate.py                   # BLEU + chrF++ scoring script
+The final 200M model was fine-tuned using Hugging Face `Seq2SeqTrainer`.
 
-```
+| Setting | Value |
+|---|---:|
+| Epochs | 5 |
+| Per-device training batch size | 16 |
+| Gradient accumulation | 2 steps |
+| Effective batch size | 32 |
+| Learning rate | 5e-5 |
+| Weight decay | 0.01 |
+| Warm-up ratio | 0.1 |
+| Learning-rate scheduler | Cosine |
+| Precision | bfloat16 |
+| Checkpoint frequency | Every epoch |
+| Checkpoints retained | 5 |
 
----
+Checkpoints are saved in `/kaggle/working/indictrans2-200m-fullft`. The final model and tokenizer are saved in `/kaggle/working/best-model-200m`.
 
-## 🚀 Quick Start
+### Inference and candidate submissions
 
-### Prerequisites
-- Python 3.10+
-- GPU (recommended for training; using Kaggle Notebooks)
-- HuggingFace account with `hf auth login`
+For each English test sentence, the model applies IndicTransToolkit preprocessing, generates Kashmiri text using beam search, and postprocesses the result as `kas_Arab`. We generated candidate submissions from the final model with these decoding settings:
 
-### Setup
+- 5 beams, length penalty 1.0;
+- 10 beams, length penalty 0.8;
+- 10 beams, length penalty 1.0; and
+- 8 beams, length penalty 0.7.
 
-```bash
-# Clone repo
-git clone https://github.com/syedailha17-arch/english_kashmiri-mt.git
-cd english_kashmiri-mt
+We also generated outputs from every epoch checkpoint using 5 beams with a length penalty of 1.0. Each candidate is saved as a CSV with the required `ID` and `kashmiri_text` columns, so checkpoints and decoding settings can be compared on the competition leaderboard.
 
-# Create virtual environment
-python3 -m venv kathe_env
-source kathe_env/bin/activate  # On Windows: kathe_env\Scripts\activate
+## Reproducibility
 
-# Install dependencies
-pip install -r requirements.txt
+The combined training set is shuffled with `random_state=42`. Before ending a Kaggle session, the final model, epoch checkpoints, and submission CSV files must be stored under `/kaggle/working/`, then preserved by creating a Kaggle notebook version with **Save output files** enabled.
 
-# Authenticate with HuggingFace
-hf auth login
+## Main dependencies
+
+```text
+torch
+transformers
+IndicTransToolkit
+pandas
+numpy
+tqdm
 ```
 
-### Load Dataset
+## Notes
 
-```python
-from datasets import load_dataset
+- The Kaggle Notebook requires GPU acceleration to fine-tune the model efficiently.
+- A Hugging Face token is configured as the Kaggle secret `HF_TOKEN` when access is required to download the base model.
+- The competition's official leaderboard determines the reported scores above.
 
-# Load BPCC Kashmiri data (98,929 pairs)
-dataset = load_dataset("ai4bharat/BPCC", "bpcc-seed-latest", split="kas_Arab")
+## License
 
-print(f"Dataset size: {len(dataset)}")
-print(f"English: {dataset[0]['src']}")
-print(f"Kashmiri: {dataset[0]['tgt']}")
-```
-
----
-
-## 📈 Baseline Results
-
-### NLLB-200 Baseline (Aug 2, 2026)
-
-| Metric | Score |
-|--------|-------|
-| **BLEU** | 4.74 |
-| **chrF++** | 34.48 |
-| **Geometric mean** | 12.78 |
-| **Model** | facebook/nllb-200-distilled-600M |
-| **Test set** | First 100 BPCC examples |
-
-**Status:** ❌ **Not viable**
-
-**Reason:** NLLB-200 does not include Kashmiri in its 200-language portfolio. While it supports nearby languages (Hindi, Urdu, Punjabi), Kashmiri is absent. Output is gibberish Arabic script with no semantic meaning.
-
-**Sample output:**
-```
-English:    "He bickers with the maids, harrows his hapless helper..."
-Reference:  "سراپ دم ڈجے تڈیہیم شیڑنڈ یں ارک رے ل ذال..."
-Prediction: "سراپ ریپ سرتش سن نریکوپں شیڑنڈ ڈریک وپ سریم ریل..."  ← Gibberish
-```
-
-**Decision:** Abandon NLLB. Proceed with **IndicTrans2**, which IS trained on Indian languages including Kashmiri.
-
----
-
-## 🔧 Models Used
-
-### Model 1: NLLB-200 (Baseline - DEPRECATED)
-
-```python
-from transformers import AutoTokenizer, M2M100ForConditionalGeneration
-
-model_name = "facebook/nllb-200-distilled-600M"
-tokenizer = AutoTokenizer.from_pretrained(model_name, src_lang="eng_Latn")
-model = M2M100ForConditionalGeneration.from_pretrained(model_name)
-```
-
-**Why it failed:** No Kashmiri support.
-
----
-
-### Model 2: IndicTrans2 (Active)
-
-```python
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-
-model_name = "ai4bharat/IndicTrans2-indic-indic"
-tokenizer = AutoTokenizer.from_pretrained(model_name, src_lang="eng_Latn", tgt_lang="kas_Arab")
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-```
-
-**Why it works:**
-- ✅ Trained on 10+ Indian languages (including Kashmiri)
-- ✅ Handles morphologically rich languages well
-- ✅ 1.3B parameters (fits on Kaggle GPU)
-- ✅ Active Hugging Face support
-
----
-
-## 📊 Evaluation Metrics
-
-### BLEU (Bilingual Evaluation Understudy)
-- **What:** Word n-gram overlap between prediction and reference
-- **Why:** Standard MT metric for fluency
-- **Target:** 30+
-- **Formula:** Geometric mean of 1-gram to 4-gram precision
-
-### chrF++ (Character n-gram F-score)
-- **What:** Character-level F1 score
-- **Why:** Critical for morphologically rich languages like Kashmiri (catches suffixes/prefixes)
-- **Target:** 55+
-- **Formula:** Harmonic mean of character n-gram precision and recall
-
-### Geometric Mean
-- **What:** √(BLEU × chrF++)
-- **Why:** Balances both metrics equally
-- **Target:** 40+
-- **Formula:** `sqrt(bleu_score * chrf_score)`
-
-**Why both metrics?** Kashmiri inflects heavily. A translation might have perfect word order (high BLEU) but wrong suffixes (low chrF++), or vice versa.
-
----
-
-## 🔬 Experiment Tracking
-
-### Experiment Log Template
-
-**File:** `results/scores.json`
-
-```json
-{
-  "experiments": [
-    {
-      "id": "exp_001",
-      "date": "2026-08-08",
-      "model": "IndicTrans2-indic-indic",
-      "config": {
-        "learning_rate": 5e-5,
-        "batch_size": 32,
-        "epochs": 2,
-        "warmup_steps": 500,
-        "max_grad_norm": 1.0
-      },
-      "results": {
-        "bleu": 22.5,
-        "chrf": 45.3,
-        "geo_mean": 31.9
-      },
-      "notes": "Good improvement over baseline. Try higher LR next."
-    }
-  ]
-}
-```
-
----
-
-## 📝 Running Notebooks
-
-### Local Development
-
-```bash
-# Baseline (NLLB) - DO NOT RUN UNLESS DEBUGGING
-python notebooks/01_baseline.py
-
-# Fine-tuning - USE KAGGLE NOTEBOOKS INSTEAD
-# (GPUs not available on MacBook Air M4)
-```
-
-### Kaggle Notebooks (Recommended)
-
-1. Go to [kaggle.com/code](https://kaggle.com/code)
-2. Create new notebook
-3. Add BPCC dataset as input
-4. Copy `notebooks/02_finetune.py` code
-5. Run with GPU (P100 or T4 available free)
-
-**Why Kaggle?**
-- ✅ GPU available (training ~100x faster)
-- ✅ HuggingFace dependencies pre-installed
-- ✅ No ONNX/custom code issues
-- ✅ Easy submission to leaderboard
-
----
-
-## 📦 Dependencies
-
-### Core ML
-- `torch>=2.0.0` — PyTorch for deep learning
-- `transformers>=4.36.0` — HuggingFace models
-- `datasets>=2.14.0` — HuggingFace datasets library
-- `tokenizers>=0.14.0` — Fast tokenization
-
-### Evaluation
-- `sacrebleu>=2.4.0` — BLEU & chrF++ scoring
-- `rouge-score>=0.1.2` — ROUGE metrics (optional)
-
-### Development
-- `jupyter>=1.0.0` — Jupyter notebooks
-- `numpy>=1.24.0` — Numerical computing
-- `pandas>=2.0.0` — Data manipulation
-
-**Full list:** See `requirements.txt`
-
-```bash
-# Install all
-pip install -r requirements.txt
-```
-
----
-
-## 📄 License
-
-MIT License — See `LICENSE` file
-
----
-
-## 🤝 Contributing
-
-Team members:
-- Push to `main` branch (not production-critical)
-- Keep `notebooks/` clean (only working versions)
-- Update this README if you change structure/process
-
----
-
-## 📞 Contact
-
-*Team GitHub profiles:*
-- Babar: [github.com/BabarZargar](https://github.com/BabarZargar)
-- Muhaimin: [github.com/Muha1m1n](https://github.com/Muha1m1n)
-- Ilha: [github.com/syedailha17-arch](https://github.com/syedailha17-arch)
-- Aatif:[github.com/Aatif-wani](https://github.com/Aatif-wani)
+MIT License.
